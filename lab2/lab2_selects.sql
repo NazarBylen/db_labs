@@ -2,21 +2,21 @@
 -- межах від 500 до 750 МГц. Вивести: model, speed, price. Вихідні дані
 -- впорядкувати за спаданням за стовпцем hd.
 
-SELECT model, speed, price FROM Labor_SQL.PC
+SELECT model, speed, price FROM PC
 WHERE speed >=500 and speed <=750
 ORDER BY hd DESC;
 
 -- 2. БД «Аеропорт». Вивести прізвища пасажирів (друге слово в стовпці
 -- name), що починаються на літеру 'С'.
 
-SELECT SUBSTRING(name, (SELECT LOCATE(' ', name)+1), 10) FROM Labor_SQL.Passenger
+SELECT SUBSTRING(name, (SELECT LOCATE(' ', name)+1), 10) FROM Passenger
 WHERE name REGEXP '^[^ ]+[ ]+c+[^ ]+$';
 
 -- 3. БД «Кораблі». Для кораблів, що вціліли в битвах, вивести назви та
 -- дати битв, у яких вони брали участь.
 
 SELECT name, date
-FROM Labor_SQL.Battles
+FROM Battles
 INNER JOIN Outcomes ON Battles.name = Outcomes.battle
 WHERE Outcomes.result = "OK";
 
@@ -24,7 +24,7 @@ WHERE Outcomes.result = "OK";
 -- ПК та ноутбуки (використати ключове слово ALL). Вивести maker.
 
 SELECT DISTINCT maker
-FROM Labor_SQL.Product
+FROM Product
 WHERE type = 'PC' AND NOT Product.maker <> ALL(SELECT maker FROM Product WHERE type = 'Laptop');
 
 -- 5. БД «Комп. фірма». Знайдіть виробників принтерів, що випускають
@@ -39,7 +39,7 @@ LIMIT 1;
 -- 6. БД «Кораблі». З таблиці Battles виведіть дати в такому форматі:
 -- день.число_місяця.рік, наприклад, 12.06.2001 (без формату часу).
 
-SELECT DATE_FORMAT(date, '%d.%m.%Y') FROM Labor_SQL.Battles;
+SELECT DATE_FORMAT(date, '%d.%m.%Y') FROM Battles;
 
 -- 7. БД «Комп. фірма». Знайдіть середній розмір жорсткого диску ПК
 -- (одне значення на всіх) тих виробників, які також випускають і прин-
