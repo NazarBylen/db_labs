@@ -7,9 +7,9 @@ public interface GeneralServiceInterface<T, ID> {
 
     T findById(ID id);
 
-//    T create(T entity);
-//
-//    void update(ID id, T entity);
-//
-//    void delete(ID id);
+    T create(T entity);
+
+    void update(ID id, T entity);
+
+    void delete(ID id);
 }

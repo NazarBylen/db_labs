@@ -19,12 +19,10 @@ public class Settlements {
     private Double gps_latitude;
     private Double gps_longtitude;
 
-    @OneToMany(mappedBy = "settlements_id")
-    @JsonIgnore
-    private Set<Measures> msrs;
+    @OneToMany(mappedBy = "settlement")
+    private Set<Measures> measures;
 
     @ManyToMany(mappedBy = "settlements_rivers")
-    @JsonIgnore
     Set<Rivers> rivers;
 
     public Settlements(String name, Double gps_latitude, Double gps_longtitude) {

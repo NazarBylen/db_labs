@@ -3,38 +3,87 @@ package com.rest.domain.Controller;
 import com.rest.domain.Dto.MeasuresDto;
 import com.rest.domain.Dto.RiversDto;
 import com.rest.domain.Dto.SettlementsDto;
+import com.rest.domain.Dto.assembler.MeasuresDtoAssembler;
+import com.rest.domain.Dto.assembler.RiversDtoAssembler;
+import com.rest.domain.Dto.assembler.SettlementsDtoAssembler;
 import com.rest.domain.Service.SettlementsService;
+import com.rest.domain.domain.Measures;
+import com.rest.domain.domain.Rivers;
+import com.rest.domain.domain.Settlements;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
-class SettlementsController {
+@RequestMapping(value = "/api/settlements")
+public class SettlementsController {
     @Autowired
-    private final SettlementsService stlmnts;
+    private SettlementsService settlementsService;
 
-    SettlementsController(SettlementsService stlmnts) {
-        this.stlmnts = stlmnts;
+    @Autowired
+    private SettlementsDtoAssembler settlementsDtoAssembler;
+    @Autowired
+    private MeasuresDtoAssembler measuresDtoAssembler;
+    @Autowired
+    private RiversDtoAssembler riversDtoAssembler;
+
+    SettlementsController(SettlementsService settlementsService) {
+        this.settlementsService = settlementsService;
     }
 
-
-    // Aggregate root
-    // tag::get-aggregate-root[]
-    @GetMapping("/settlements")
-    List<SettlementsDto> all() {
-        return stlmnts.findAll();
+    @GetMapping("/{id}")
+    public ResponseEntity<SettlementsDto> getOne(@PathVariable Integer id) {
+        Settlements settlement = settlementsService.findById(id);
+        SettlementsDto dto = settlementsDtoAssembler.toModel(settlement);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/measures")
-    List<MeasuresDto> allMeasures(@PathVariable Integer id) {
-        return stlmnts.findMeasuresBySettlements(id);
+    @GetMapping(value = "")
+    public ResponseEntity<CollectionModel<SettlementsDto>> getAll() {
+        List<Settlements> rivers = settlementsService.findAll();
+        CollectionModel<SettlementsDto> dto = settlementsDtoAssembler.toCollectionModel(rivers);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-//    @GetMapping("/{id}/rivers")
-//    List<RiversDto> allRivers(@PathVariable Integer id) {
-//        return stlmnts.findRiversBySettlements(id);
-//    }
+    @GetMapping(value = "/{id}/measures")
+    public ResponseEntity<CollectionModel<MeasuresDto>> getAllMeasuresForSettlement(@PathVariable Integer id) {
+        List<Measures> measures = settlementsService.findMeasuresBySettlementId(id);
+        Link selfLink = linkTo(methodOn(SettlementsController.class).getAllMeasuresForSettlement(id)).withSelfRel();
+        CollectionModel<MeasuresDto> dto = measuresDtoAssembler.toCollectionModel(measures, selfLink);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+    @GetMapping("/{id}/rivers")
+    public ResponseEntity<CollectionModel<RiversDto>> getAllRiversForSettlement(@PathVariable Integer id) {
+        List<Rivers> rivers = settlementsService.findRiversBySettlementId(id);
+        Link selfLink = linkTo(methodOn(SettlementsController.class).getAllRiversForSettlement(id)).withSelfRel();
+        CollectionModel<RiversDto> dto = riversDtoAssembler.toCollectionModel(rivers, selfLink);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "")
+    public ResponseEntity<SettlementsDto> addSettlement(@RequestBody Settlements settlement) {
+        Settlements newSettlement = settlementsService.create(settlement);
+        SettlementsDto settlementsDto = settlementsDtoAssembler.toModel(newSettlement);
+        return new ResponseEntity<>(settlementsDto, HttpStatus.CREATED);
+    }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<?> updateSettlement(@RequestBody Settlements settlement, @PathVariable Integer id) {
+        settlementsService.update(id, settlement);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> deleteSettlement(@PathVariable Integer id) {
+        settlementsService.delete(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

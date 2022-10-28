@@ -1,8 +1,5 @@
 package com.rest.domain.Service;
 
-import com.rest.domain.Dto.MeasuresDto;
-import com.rest.domain.Dto.RiversDto;
-import com.rest.domain.Dto.SettlementsDto;
 import com.rest.domain.Repository.SettlementsRepository;
 import com.rest.domain.domain.Measures;
 import com.rest.domain.domain.Rivers;
@@ -11,12 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-public class SettlementsService{
+public class SettlementsService implements SettlementsServiceInterface{
 
     public SettlementsRepository repository;
 
@@ -25,42 +21,47 @@ public class SettlementsService{
         this.repository = repository;
     }
 
-    public List<MeasuresDto> findMeasuresBySettlements(Integer id) {
-        Optional<Settlements> stlmnts = repository.findById(id);
-        return stlmnts.get().getMsrs().stream().map(this::convertToDtoMeasures).collect(Collectors.toList());
+    public List<Settlements> findAll(){
+        return repository.findAll();
     }
 
-//    public List<RiversDto> findRiversBySettlements(Integer id) {
-//        Optional<Settlements> stlmnts = repository.findById(id);
-//        return stlmnts.get().getRivers().stream().map(this::convertToDtoRivers).collect(Collectors.toList());
-//    }
-
-    public List<SettlementsDto> findAll(){
-        return repository.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
+    @Override
+    public Settlements findById(Integer id) {
+        return repository.findById(id).orElseThrow(null);
     }
 
-    public SettlementsDto convertToDto(Settlements stlmnts){
-        SettlementsDto stlmntsDto = new SettlementsDto();
-        stlmntsDto.setId(stlmnts.getId());
-        stlmntsDto.setName(stlmnts.getName());
-        stlmntsDto.setGps_latitude(stlmnts.getGps_latitude());
-        stlmntsDto.setGps_longtitude(stlmnts.getGps_longtitude());
-        return stlmntsDto;
+    @Transactional
+    public Settlements create(Settlements settlement){
+        repository.save(settlement);
+        return settlement;
     }
 
-//    public RiversDto convertToDtoRivers(Rivers rvr){
-//        RiversDto rvrsDto = new RiversDto();
-//        rvrsDto.setId(rvr.getId());
-//        rvrsDto.setName(rvr.getName());
-//        return rvrsDto;
-//    }
-
-    public MeasuresDto convertToDtoMeasures(Measures msrs){
-        MeasuresDto msrsDto = new MeasuresDto();
-        msrsDto.setId(msrs.getId());
-        msrsDto.setWater_level(msrs.getWater_level());
-        msrsDto.setDate(msrs.getDate());
-        msrsDto.setSettlements_id(msrs.getSettlements_id().getId());
-        return msrsDto;
+    @Transactional
+    public void update(Integer id, Settlements settlement) {
+        Settlements currentSettlement = repository.findById(id).orElseThrow(null);
+        currentSettlement.setId(id);
+        currentSettlement.setName(settlement.getName());
+        currentSettlement.setGps_latitude(settlement.getGps_latitude());
+        currentSettlement.setGps_longtitude(settlement.getGps_longtitude());
+        repository.save(currentSettlement);
     }
+
+    @Transactional
+    public void delete(Integer id) {
+        Settlements settlement = repository.findById(id).orElseThrow(null);
+        repository.delete(settlement);
+    }
+
+    @Override
+    public List<Measures> findMeasuresBySettlementId(Integer id) {
+        Settlements settlement = repository.findById(id).orElseThrow(null);
+        return settlement.getMeasures().stream().toList();
+    }
+
+    @Override
+    public List<Rivers> findRiversBySettlementId(Integer id) {
+        Settlements settlement = repository.findById(id).orElseThrow(null);;
+        return settlement.getRivers().stream().toList();
+    }
+
 }

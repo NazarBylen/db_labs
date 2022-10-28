@@ -20,12 +20,12 @@ public class Measures {
     private Date date;
 
     @ManyToOne
-    @JoinColumn(name = "settlements_id")
-    @JsonIgnore
-    private Settlements settlements_id;
+    @JoinColumn(name = "settlements_id", referencedColumnName = "id")
+    private Settlements settlement;
 
-    public Measures(String water_level, Date date) {
+    public Measures(String water_level, Date date, Settlements settlement) {
         this.water_level = water_level;
         this.date = date;
+        this.settlement = settlement;
     }
 }

@@ -1,16 +1,19 @@
 package com.rest.domain.Service;
 
-import com.rest.domain.Dto.RiversDto;
+import com.rest.domain.Dto.SettlementsDto;
 import com.rest.domain.Repository.RiversRepository;
 import com.rest.domain.domain.Rivers;
+import com.rest.domain.domain.Settlements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class RiversService implements GeneralServiceInterface<Rivers, Integer>{
+public class RiversService implements RiversServiceInterface {
     public RiversRepository repository;
 
     @Autowired
@@ -26,42 +29,28 @@ public class RiversService implements GeneralServiceInterface<Rivers, Integer>{
         return repository.findById(id).orElseThrow(null);
     }
 
-//    public RiversDto create(Rivers rvrs){
-//        RiversDto riv = new RiversDto();
-//        riv.setId(rvrs.getId());
-//        riv.setName(rvrs.getName());
-//        repository.save(rvrs);
-//        return riv;
-//    }
-//
-//    public RiversDto update(Integer id, Rivers rvrs){
-//        if (repository.findById(id).isEmpty()) {
-//            throw new NullPointerException("Parameter Id cannot be found");
-//        } else {
-//            RiversDto riv = new RiversDto();
-//            Rivers riv2 = repository.findById(id).get();
-//            riv2.setId(id);
-//            riv2.setName(rvrs.getName());
-//            riv.setId(id);
-//            riv.setName(rvrs.getName());
-//            repository.save(riv2);
-//            return riv;
-//        }
-//    }
-//
-//    public RiversDto delete(int id) {
-//        Rivers riv2 = repository.findById(id).get();
-//        RiversDto riv = new RiversDto();
-//        riv.setId(riv2.getId());
-//        riv.setName(riv2.getName());
-//        repository.deleteById(id);
-//        return riv;
-//    }
-//
-//    public RiversDto convertToDto(Rivers rvr){
-//        RiversDto rvrsDto = new RiversDto();
-//        rvrsDto.setId(rvr.getId());
-//        rvrsDto.setName(rvr.getName());
-//        return rvrsDto;
-//    }
+    @Transactional
+    public Rivers create(Rivers river){
+        repository.save(river);
+        return river;
+    }
+
+    @Transactional
+    public void update(Integer id, Rivers river) {
+        Rivers currentRiver = repository.findById(id).orElseThrow(null);
+        currentRiver.setId(id);
+        currentRiver.setName(river.getName());
+        repository.save(currentRiver);
+    }
+
+    @Transactional
+    public void delete(Integer id) {
+        Rivers river = repository.findById(id).orElseThrow(null);
+        repository.delete(river);
+    }
+
+    public List<Settlements> findSettlementsByRiverId(Integer riverId) {
+        Rivers river = repository.findById(riverId).orElseThrow(null);
+        return river.getSettlements_rivers().stream().toList();
+    }
 }
