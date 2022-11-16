@@ -36,6 +36,13 @@ public class RiversService implements RiversServiceInterface {
     }
 
     @Transactional
+    public Rivers createWithProcedure(Rivers river){
+        Integer riverId = repository.CreateNewRiver(river.getName());
+        river.setId(riverId);
+        return river;
+    }
+
+    @Transactional
     public void update(Integer id, Rivers river) {
         Rivers currentRiver = repository.findById(id).orElseThrow(null);
         currentRiver.setId(id);

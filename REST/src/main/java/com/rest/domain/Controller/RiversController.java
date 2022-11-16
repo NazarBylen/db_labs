@@ -56,6 +56,13 @@ public class RiversController {
         return new ResponseEntity<>(riverDto, HttpStatus.CREATED);
     }
 
+    @PostMapping(value = "/withProcedure")
+    public ResponseEntity<RiversDto> addRiverWithProcedure(@RequestBody Rivers river) {
+        Rivers newRiver = riversService.createWithProcedure(river);
+        RiversDto riverDto = riversDtoAssembler.toModel(newRiver);
+        return new ResponseEntity<>(riverDto, HttpStatus.CREATED);
+    }
+
     @PutMapping(value = "/{riverId}")
     public ResponseEntity<?> updateRiver(@RequestBody Rivers river, @PathVariable Integer riverId) {
         riversService.update(riverId, river);
