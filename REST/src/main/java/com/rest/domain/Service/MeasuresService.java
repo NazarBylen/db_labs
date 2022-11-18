@@ -26,6 +26,11 @@ public class MeasuresService implements MeasuresServiceInterface{
         return repository.findById(id).orElseThrow(null);
     }
 
+    @Override
+    public Integer getMaxMeasure() {
+        return repository.GetMaxMeasure();
+    }
+
     @Transactional
     public Measures create(Measures person) {
         repository.save(person);

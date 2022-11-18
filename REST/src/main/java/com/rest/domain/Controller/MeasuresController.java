@@ -36,6 +36,12 @@ public class MeasuresController {
         return new ResponseEntity<>(measuresDto, HttpStatus.OK);
     }
 
+    @GetMapping("/max-measure")
+    public ResponseEntity<Integer> getMaxMeasure() {
+        Integer maxMeasure = measuresService.getMaxMeasure();
+        return new ResponseEntity<>(maxMeasure, HttpStatus.OK);
+    }
+
     @GetMapping(value = "")
     public ResponseEntity<CollectionModel<MeasuresDto>> getAll() {
         List<Measures> measures = measuresService.findAll();
@@ -71,7 +77,7 @@ public class MeasuresController {
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> deleteMasure(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteMeasure(@PathVariable Integer id) {
         measuresService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
